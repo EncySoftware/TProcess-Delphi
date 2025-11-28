@@ -47,13 +47,11 @@ begin
     OutputLine:='';
     SetLength(Buf,BufSize);
     repeat
-      if (p.Output<>nil) then
-      begin
+      if (p.Output<>nil) then begin
         Count:=p.Output.Read(Buf[1],Length(Buf));
         // Count:=p.Output.Read(pchar(Buf)^, BufSize);  //L505 todo: try this when using unicodestring buffer
-        // writeln('DEBUG: len buf: ', length(buf));
-      end
-      else
+        { writeln('DEBUG: len buf: ', length(buf), ' Count: ', Count); }
+      end else
         Count:=0;
       LineStart:=1;
       i:=1;
@@ -61,20 +59,20 @@ begin
       begin
         // L505
         //if Buf[i] in [#10,#13] then
-        if CharInSet(Buf[i], [#10,#13]) then
-        begin
+        if CharInSet(Buf[i], [#10,#13]) then begin
           OutputLine:=OutputLine+Copy(Buf,LineStart,i-LineStart);
           writeln(OutputLine);
           OutputLine:='';
           // L505
           //if (i<Count) and (Buf[i+1] in [#10,#13]) and (Buf[i]<>Buf[i+1]) then
-          if (i<Count) and (CharInset(Buf[i], [#10,#13])) and (Buf[i]<>Buf[i+1]) then
+          if (i<Count) and (CharInset(Buf[i+1], [#10,#13])) and (Buf[i]<>Buf[i+1]) then
             inc(i);
           LineStart:=i+1;
         end;
         inc(i);
       end;
-      OutputLine:=Copy(Buf,LineStart,Count-LineStart+1);
+      if Count<>0 then
+        OutputLine:=Copy(Buf,LineStart,Count-LineStart+1);
     until Count=0;
     if OutputLine <> '' then
       writeln(OutputLine);
@@ -87,11 +85,6 @@ begin
   end;
 end;
 
-const
-{$ifdef MSWINDOWS}prog = 'cmd';{$endif}
-
-{$ifdef MACOS}prog = 'ls';{$endif}
-
 var args: TStringList;
 
 {$ifdef MSWINDOWS}
@@ -102,17 +95,18 @@ begin
 end;
 {$endif}
 
-{$ifdef MACOS}
+{$ifdef LINUX}
 procedure SetArgs;
 begin
- // does LS require launching shell (sh) ??
+  for var I := 2 to ParamCount do
+    args.add(ParamStr(I));
 end;
 {$endif}
 
 begin
   args := TStringList.Create;
   SetArgs;
-  RunProcess(prog, args);
+  RunProcess(ParamStr(1), args);
   args.free; args := nil;
   writeln('press enter to exit');
   readln;

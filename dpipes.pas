@@ -66,7 +66,7 @@ type
       Function Read(Var Buffer; Count : Longint) : longint; Override;
     end;
 
-Function CreatePipeHandles (Var Inhandle,OutHandle : THandle; APipeBufferSize : Cardinal = 1024) : Boolean;
+Function CreatePipeHandles (Var Inhandle,OutHandle : Integer; APipeBufferSize : Cardinal = 1024) : Boolean;
 Procedure CreatePipeStreams (Var InPipe : TInputPipeStream;
                              Var OutPipe : TOutputPipeStream);
 
@@ -76,8 +76,8 @@ Const EPipeMsg = 'Failed to create pipe.';
 
 Implementation
 
-{$IFDEF MACOS}   // L505
-  {$i pipes_macos.inc}
+{$IFDEF LINUX}   // L505
+  {$i pipes_linux.inc}
 {$ENDIF}
 
 {$IFDEF MSWINDOWS} // L505
@@ -87,7 +87,7 @@ Implementation
 
 Procedure CreatePipeStreams (Var InPipe : TInputPipeStream;
                              Var OutPipe : TOutputPipeStream);
-Var InHandle,OutHandle: THandle;
+Var InHandle,OutHandle: Integer;
 begin
   if CreatePipeHandles(InHandle, OutHandle) then
     begin

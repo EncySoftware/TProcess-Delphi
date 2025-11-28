@@ -43,7 +43,7 @@ Const piInheritablePipe : TSecurityAttributes = (
       PipeBufSize = 1024;
 
 
-Function CreatePipeHandles (Var Inhandle,OutHandle : THandle; APipeBufferSize : Cardinal = PipeBufSize) : Boolean;
+Function CreatePipeHandles (Var Inhandle,OutHandle : Integer; APipeBufferSize : Cardinal = PipeBufSize) : Boolean;
 begin
   // L505
   // Result := CreatePipe(@Inhandle,@OutHandle,@piNonInheritablePipe,APipeBufferSize);
@@ -67,7 +67,7 @@ begin
   Raise EPipeSeek.Create(ENoSeekMsg);
 end;
 
-procedure PipeClose(const FHandle: THandle); inline;
+procedure PipeClose(const FHandle: Integer); inline;
 begin
   FileClose(FHandle);
 end;

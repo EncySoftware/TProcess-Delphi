@@ -170,9 +170,9 @@ end;
   handles into inheritable ones, leaving the parent-side handles
   non-inheritable.
 }
-function DuplicateHandleFP(var handle: THandle): Boolean;
+function DuplicateHandleFP(var handle: Integer): Boolean;
 var
-  oldHandle: THandle;
+  oldHandle: Integer;
 begin
   oldHandle := handle;
   Result := DuplicateHandle
@@ -189,8 +189,8 @@ begin
 end;
 
 // L505 changed to TStartupInfoW
-// Procedure CreatePipes(Var HI,HO,HE : Thandle; Var SI : TStartupInfoA; CE : Boolean; APipeBufferSize : Cardinal);
-procedure CreatePipes(Var HI,HO,HE : Thandle; Var SI : TStartupInfoW; CE : Boolean; APipeBufferSize : Cardinal);
+// Procedure CreatePipes(Var HI,HO,HE : Integer; Var SI : TStartupInfoA; CE : Boolean; APipeBufferSize : Cardinal);
+procedure CreatePipes(Var HI,HO,HE : Integer; Var SI : TStartupInfoW; CE : Boolean; APipeBufferSize : Cardinal);
 begin
   CreatePipeHandles(SI.hStdInput,HI, APipeBufferSize);
   DuplicateHandleFP(SI.hStdInput);
@@ -234,7 +234,7 @@ Var
   FProcessInformation : TProcessInformation;
   // FStartupInfo : STARTUPINFOA;  // L505
   FStartupInfo : STARTUPINFOW;  // L505
-  HI,HO,HE : THandle;
+  HI,HO,HE : Integer;
   Cmd : String;
 
 begin
@@ -327,7 +327,7 @@ begin
   Result:=ResumeThread(ThreadHandle);
 end;
 
-Function TProcess.Terminate(AExitCode : Integer) : Boolean;
+Function TProcess.Terminate(AExitCode : Integer; SignalWaitTime: Integer) : Boolean;
 begin
   Result:=False;
   If ExitStatus=Still_active then

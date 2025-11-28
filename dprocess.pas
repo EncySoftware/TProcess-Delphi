@@ -49,7 +49,7 @@ Type
 
 
 Type
-  {$ifdef MACOS} //L505
+  {$ifdef LINUX}
   TProcessForkEvent = procedure(Sender : TObject) of object;
   {$endif}
 
@@ -62,8 +62,8 @@ Type
     FProcessID : Integer;
     FTerminalProgram: String;
     FThreadID : Integer;
-    FProcessHandle : Thandle;
-    FThreadHandle : Thandle;
+    FProcessHandle : Integer;
+    FThreadHandle : Integer;
     FFillAttribute : Cardinal;
     FApplicationName : string;
     FConsoleTitle : String;
@@ -75,7 +75,7 @@ Type
     FParameters : TStrings;
     FShowWindow : TShowWindowOptions;
     FInherithandles : Boolean;
-    {$ifdef MACOS} // L505
+    {$ifdef LINUX}
     FForkEvent : TProcessForkEvent;
     {$endif}
     FProcessPriority : TProcessPriority;
@@ -127,12 +127,12 @@ Type
     procedure CloseStderr; virtual;
     Function Resume : Integer; virtual;
     Function Suspend : Integer; virtual;
-    Function Terminate (AExitCode : Integer): Boolean; virtual;
+    Function Terminate (AExitCode : Integer; SignalWaitTime: Integer = 20): Boolean; virtual;
     Function WaitOnExit : Boolean;
     Property WindowRect : Trect Read GetWindowRect Write SetWindowRect;
-    Property Handle : THandle Read FProcessHandle;
-    Property ProcessHandle : THandle Read FProcessHandle;
-    Property ThreadHandle : THandle Read FThreadHandle;
+    Property Handle : Integer Read FProcessHandle;
+    Property ProcessHandle : Integer Read FProcessHandle;
+    Property ThreadHandle : Integer Read FThreadHandle;
     Property ProcessID : Integer Read FProcessID;
     Property ThreadID : Integer Read FThreadID;
     Property Input  : TOutputPipeStream Read FInputStream;
@@ -141,14 +141,14 @@ Type
     Property ExitStatus : Integer Read GetExitStatus;
     Property ExitCode : Integer Read GetExitCode;
     Property InheritHandles : Boolean Read FInheritHandles Write FInheritHandles;
-    {$ifdef MACOS} // L505
+    {$ifdef LINUX}
     property OnForkEvent : TProcessForkEvent Read FForkEvent Write FForkEvent;
     {$endif}
   Published
     property PipeBufferSize : cardinal read FPipeBufferSize write FPipeBufferSize default 1024;
     Property Active : Boolean Read GetRunning Write SetActive;
     Property ApplicationName : String Read FApplicationName Write SetApplicationName; //deprecated; //L505
-    Property CommandLine : String Read FCommandLine Write SetCommandLine ; //deprecated;  //L505
+    Property CommandLine : String Read FCommandLine Write SetCommandLine;
     Property Executable : String Read FExecutable Write FExecutable;
     Property Parameters : TStrings Read FParameters Write SetParameters;
     Property ConsoleTitle : String Read FConsoleTitle Write FConsoleTitle;
@@ -174,11 +174,11 @@ Type
 
 Procedure CommandToList(S : String; List : TStrings);
 
-{$ifdef MACOS} //L505
+{$ifdef LINUX}
 Var
   TryTerminals : Array of string;
   XTermProgram : String;
-  Function DetectXTerm : String;
+  { Function DetectXTerm : String; }
 {$endif}
 
 { // L505: changed to ansistring
@@ -202,8 +202,8 @@ function RunCommand(const cmdline:string;out outputstring:ansistring):boolean; d
 
 implementation
 
-{$IFDEF MACOS} //L505
-  {$i process_macos.inc}
+{$IFDEF LINUX}
+  {$i process_linux.inc}
 {$ENDIF}
 
 {$IFDEF MSWINDOWS}  //L505
@@ -279,7 +279,7 @@ begin
   FProcessPriority:=ppNormal;
   FShowWindow:=swoNone;
   FInheritHandles:=True;
- {$ifdef MACOS} // L505
+ {$ifdef LINUX}
   FForkEvent:=nil;
  {$endif}
   FPipeBufferSize := 1024;

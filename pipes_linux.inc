@@ -26,7 +26,11 @@ end;
 
 Function TInputPipeStream.GetNumBytesAvailable: DWord;
 begin
+  {$IFDEF MACOS}
+  if ioctl(Handle, FIONREAD, @Result)<0 then
+  {$ELSE}
   if ioctl(Handle, I_NREAD, @Result)<0 then
+  {$ENDIF}
     Result := 0;
 end;
 

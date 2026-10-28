@@ -76,7 +76,7 @@ Const EPipeMsg = 'Failed to create pipe.';
 
 Implementation
 
-{$IFDEF LINUX}   // L505
+{$IFDEF POSIX}   // L505
   {$i pipes_linux.inc}
 {$ENDIF}
 

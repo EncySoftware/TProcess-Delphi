@@ -34,6 +34,11 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Platform)'=='OSX64' or '$(Platform)'=='OSXARM64'">
+        <Base_OSX64 Condition="'$(Platform)'=='OSX64'">true</Base_OSX64>
+        <Base_OSXARM64 Condition="'$(Platform)'=='OSXARM64'">true</Base_OSXARM64>
+        <DCC_macOSMinimumVersion>11.0</DCC_macOSMinimumVersion>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
         <Cfg_1>true</Cfg_1>
         <CfgParent>Base</CfgParent>
@@ -57,10 +62,10 @@
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
         <GenDll>true</GenDll>
         <RuntimeOnlyPackage>true</RuntimeOnlyPackage>
-        <DCC_DcuOutput>.\$(Platform)\dcu\$(MSBuildProjectName)</DCC_DcuOutput>
-        <DCC_DcpOutput>.\$(Platform)\dcu</DCC_DcpOutput>
-        <DCC_BplOutput>.\$(Platform)</DCC_BplOutput>
-        <DCC_ExeOutput>.\$(Platform)</DCC_ExeOutput>
+        <DCC_DcuOutput>.\bin\$(Platform)\dcu\$(MSBuildProjectName)</DCC_DcuOutput>
+        <DCC_DcpOutput>.\bin\$(Platform)\dcu</DCC_DcpOutput>
+        <DCC_BplOutput>.\bin\$(Platform)</DCC_BplOutput>
+        <DCC_ExeOutput>.\bin\$(Platform)</DCC_ExeOutput>
         <DCC_UnitSearchPath>$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <SanitizedProjectName>DProcess</SanitizedProjectName>
     </PropertyGroup>

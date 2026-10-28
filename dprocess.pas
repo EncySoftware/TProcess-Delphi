@@ -49,7 +49,7 @@ Type
 
 
 Type
-  {$ifdef LINUX}
+  {$IFDEF POSIX}
   TProcessForkEvent = procedure(Sender : TObject) of object;
   {$endif}
 
@@ -75,7 +75,7 @@ Type
     FParameters : TStrings;
     FShowWindow : TShowWindowOptions;
     FInherithandles : Boolean;
-    {$ifdef LINUX}
+    {$IFDEF POSIX}
     FForkEvent : TProcessForkEvent;
     {$endif}
     FProcessPriority : TProcessPriority;
@@ -141,7 +141,7 @@ Type
     Property ExitStatus : Integer Read GetExitStatus;
     Property ExitCode : Integer Read GetExitCode;
     Property InheritHandles : Boolean Read FInheritHandles Write FInheritHandles;
-    {$ifdef LINUX}
+    {$IFDEF POSIX}
     property OnForkEvent : TProcessForkEvent Read FForkEvent Write FForkEvent;
     {$endif}
   Published
@@ -174,7 +174,7 @@ Type
 
 Procedure CommandToList(S : String; List : TStrings);
 
-{$ifdef LINUX}
+{$IFDEF POSIX}
 Var
   TryTerminals : Array of string;
   XTermProgram : String;
@@ -202,7 +202,7 @@ function RunCommand(const cmdline:string;out outputstring:ansistring):boolean; d
 
 implementation
 
-{$IFDEF LINUX}
+{$IFDEF POSIX}
   {$i process_linux.inc}
 {$ENDIF}
 
@@ -279,7 +279,7 @@ begin
   FProcessPriority:=ppNormal;
   FShowWindow:=swoNone;
   FInheritHandles:=True;
- {$ifdef LINUX}
+ {$IFDEF POSIX}
   FForkEvent:=nil;
  {$endif}
   FPipeBufferSize := 1024;

@@ -16,15 +16,18 @@
 
 uses
   System.AnsiStrings,
-  Posix.Errno, Posix.Signal, Posix.Stdlib, Posix.SysWait, Posix.Unistd;
+  Posix.Errno, Posix.Signal, Posix.Stdlib, Posix.SysWait, Posix.Unistd
+{$IF Defined(LINUX)}
+  , Posix.Dlfcn
+{$ENDIF}
+  ;
 
 type
   TPid = Integer;
-  TPPAnsiChar = ^PAnsiChar;
 
 {$IF Defined(LINUX)}
 function posix_spawn(var Pid: Longint; Path: PAnsiChar; FileActions, Attr: Pointer;
-  Argv, Envp: TPPAnsiChar): Integer; cdecl; external 'libc.so.6' name 'posix_spawn';
+  Argv, Envp: PMarshaledAString): Integer; cdecl; external 'libc.so.6' name 'posix_spawn';
 {$ENDIF}
 
 Resourcestring
@@ -84,7 +87,6 @@ begin
     S:=List[i];
     Result[i] := AllocMem(Length(S) + 1);
     System.AnsiStrings.StrPCopy(Result[i], S);
-    WriteLn('Arg ', I, ': <', Result[i], '>');
   end;
 end;
 
@@ -257,6 +259,9 @@ Var
   Argv     : PPCharArray;
   fd       : Integer;
   res      : Integer;
+{$IF Defined(LINUX)}
+  inheritedEnv: PMarshaledAString;
+{$ENDIF}
   FoundName,
   PName    : AnsiString;
 begin
@@ -296,8 +301,15 @@ begin
            (not (poNewConsole in FProcessOptions)) and
            (FCurrentDirectory = '') then
         begin
-          res := posix_spawn(PID, PAnsiChar(PName), nil, nil,
-            TPPAnsiChar(Argv), TPPAnsiChar(FEnv));
+          if FEnv <> nil then
+            res := posix_spawn(PID, PAnsiChar(PName), nil, nil,
+              PMarshaledAString(Argv), PMarshaledAString(FEnv))
+          else
+          begin
+            inheritedEnv := Posix.Unistd.environ();
+            res := posix_spawn(PID, PAnsiChar(PName), nil, nil,
+              PMarshaledAString(Argv), inheritedEnv);
+          end;
           if res <> 0 then
             raise EProcess.CreateFmt(SErrCannotExecute, [PName, res]);
           FProcessHandle := PID;

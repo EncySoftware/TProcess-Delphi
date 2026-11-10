@@ -5,6 +5,8 @@ program posix_spawn_threads;
 uses
   System.Classes,
   System.SysUtils,
+  Posix.Dlfcn,
+  Posix.Unistd,
   dprocess;
 
 type
@@ -28,7 +30,7 @@ begin
     try
       P.Executable := '/bin/sh';
       P.Parameters.Add('-c');
-      P.Parameters.Add('exit 17');
+      P.Parameters.Add('if [ "$TPROCESS_ENV_TEST" = "inherited-value-42" ]; then exit 17; else exit 19; fi');
       P.Execute;
       P.WaitOnExit;
       FExitCode := P.ExitCode;
@@ -44,8 +46,12 @@ end;
 var
   Workers: array[0..15] of TWorker;
   I: Integer;
+  Env: PMarshaledAString;
 
 begin
+  Env := Posix.Unistd.environ();
+  if (Env = nil) or (Env^ = nil) then
+    raise Exception.Create('Posix.Unistd.environ returned no environment');
   for I := Low(Workers) to High(Workers) do
   begin
     Workers[I] := TWorker.Create(True);

@@ -1,0 +1,26 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectVersion>20.3</ProjectVersion>
+    <MainSource>posix_spawn_threads.dpr</MainSource>
+    <Config Condition="'$(Config)'==''">Release</Config>
+    <Platform Condition="'$(Platform)'==''">Linux64</Platform>
+    <TargetedPlatforms>131</TargetedPlatforms>
+    <AppType>Application</AppType>
+    <FrameworkType>None</FrameworkType>
+    <DCC_Namespace>System;System.Win;Winapi</DCC_Namespace>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Config)'=='Release'">
+    <DCC_Define>RELEASE</DCC_Define>
+    <DCC_Optimize>true</DCC_Optimize>
+    <DCC_DebugInformation>0</DCC_DebugInformation>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DCC_DcuOutput>..\bin\$(Platform)\dcu\tests</DCC_DcuOutput>
+    <DCC_ExeOutput>..\bin\$(Platform)</DCC_ExeOutput>
+    <DCC_UnitSearchPath>..;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <DelphiCompile Include="$(MainSource)" />
+  </ItemGroup>
+  <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" />
+</Project>

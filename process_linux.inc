@@ -18,11 +18,19 @@ uses
   System.AnsiStrings,
   Posix.Errno, Posix.Signal, Posix.Stdlib, Posix.SysWait, Posix.Unistd;
 
+type
+  TPid = Integer;
+  TPPAnsiChar = ^PAnsiChar;
+
+function posix_spawn(var Pid: Longint; Path: PAnsiChar; FileActions, Attr: Pointer;
+  Argv, Envp: TPPAnsiChar): Integer; cdecl; external 'libc.so.6' name 'posix_spawn';
+
 Resourcestring
   SNoCommandLine        = 'Cannot execute empty command-line';
   SErrNoSuchProgram     = 'Executable not found: "%s"';
   SErrNoTerminalProgram = 'Could not detect X-Terminal program';
   SErrCannotFork        = 'Failed to Fork process';
+  SErrCannotExecute     = 'Failed to execute %s : %d';
 
 Const
   // unused as of yet, I assume these are nice levels ?
@@ -275,6 +283,25 @@ begin
             PName:=FoundName
           else
             raise EProcess.CreateFmt(SErrNoSuchProgram,[PName]);
+        end;
+
+        // fork() is unsafe in a multithreaded Delphi process: after fork only
+        // the calling thread survives, while RTL locks may still be held by a
+        // different thread. Use posix_spawn for the common no-pipe case.
+        if (not (poUsePipes in FProcessOptions)) and
+           (not (poRunSuspended in FProcessOptions)) and
+           (not (poNewConsole in FProcessOptions)) and
+           (FCurrentDirectory = '') then
+        begin
+          res := posix_spawn(PID, PAnsiChar(PName), nil, nil,
+            TPPAnsiChar(Argv), TPPAnsiChar(FEnv));
+          if res <> 0 then
+            raise EProcess.CreateFmt(SErrCannotExecute, [PName, res]);
+          FProcessHandle := PID;
+          FThreadHandle := PID;
+          FProcessId := PID;
+          FRunning := True;
+          Exit;
         end;
 
         Pid:=fork;
